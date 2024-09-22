@@ -17,6 +17,7 @@ from google.cloud import storage
 class OCR:
     def __init__(self,path):
         # self.credentials = service_account.Credentials.from_service_account_file('./data/key.json')
+        print(st.secrets["gcp_service_account"])
         self.credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=[ "https://www.googleapis.com/auth/spreadsheets",])
         self.img_path = path
         self.client = vision.ImageAnnotatorClient(credentials=self.credentials)
