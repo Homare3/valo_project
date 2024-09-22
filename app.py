@@ -57,10 +57,11 @@ if uploaded_file is not None:
         base_data = module.split_list(swap_list)
         df = module.df_create(base_data)
 
-        with open("./data/key_path.json","r",encoding="utf-8") as file:
-            data = json.load(file)
+        # with open("./data/key_path.json","r",encoding="utf-8") as file:
+        #    data = json.load(file)
         
-        sheet_path = data.get("sheet_path")
+        # sheet_path = data.get("sheet_path")
+        sheet_path = st.secrets["sheet_path"]
         base_df,worksheet = module.connected_spread_sheet(sheet_path)
 
         st.title("基礎情報の入力")
@@ -68,7 +69,7 @@ if uploaded_file is not None:
         # 行の見え方が違うため1引く
         insert_index -= 1
         insert_patch = st.text_input("patchを入力してください")
-        enemy_teams = data.get("enemy_team")
+        enemy_teams = st.secrets["enemy_team"]
         insert_oppo = st.selectbox("敵チームを選択してください", enemy_teams)
         map_option = ["Haven", "Split", "Lotus", "Bind", "Ascent", "Sunset", "Breeze", "Icebox", "Abyss"]
         insert_map = st.selectbox("mapを選択してください",map_option)

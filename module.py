@@ -8,6 +8,7 @@ from google.cloud import vision
 from google.oauth2 import service_account
 from google.oauth2.service_account import Credentials
 import gspread
+import streamlit as st
 
 from oauth2client.service_account import ServiceAccountCredentials
 import pytz
@@ -15,7 +16,8 @@ from google.cloud import storage
 
 class OCR:
     def __init__(self,path):
-        self.credentials = service_account.Credentials.from_service_account_file('./data/key.json')
+        # self.credentials = service_account.Credentials.from_service_account_file('./data/key.json')
+        self.credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=[ "https://www.googleapis.com/auth/spreadsheets",])
         self.img_path = path
         self.client = vision.ImageAnnotatorClient(credentials=self.credentials)
     
@@ -127,14 +129,15 @@ def connected_spread_sheet(path):
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
     ]
-   credentials = Credentials.from_service_account_file(
-    './data/key.json',
-    scopes=scopes
-    )
+  #  credentials = Credentials.from_service_account_file(
+  #   './data/key.json',
+  #   scopes=scopes
+  #   )
+   credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scopes)
    gc = gspread.authorize(credentials)
    spread_sheet = gc.open_by_url(path)
    work_sheet = spread_sheet.worksheet("俺らの格差")
-   values = work_sheet.get_all_values()
+   values = work_sheet.get_all_values(value_render_option='FORMULA')
    base_df = pd.DataFrame(values)
    return base_df,work_sheet
 
