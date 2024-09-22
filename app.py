@@ -65,7 +65,7 @@ if uploaded_file is not None:
         base_df,worksheet = module.connected_spread_sheet(sheet_path)
 
         st.title("基礎情報の入力")
-        insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=1)
+        insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=10)
         # 行の見え方が違うため1引く
         insert_index -= 1
         insert_patch = st.text_input("patchを入力してください")
