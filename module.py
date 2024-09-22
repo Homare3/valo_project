@@ -141,10 +141,6 @@ def connected_spread_sheet(path):
    work_sheet = spread_sheet.worksheet("俺らの格差")
    values = work_sheet.get_all_values(value_render_option='FORMULA')
    base_df = pd.DataFrame(values)
-   st.write(base_df)
-   st.write(base_df[10])
-   st.write(base_df[10][2])
-   print(type(base_df[10][2]))
    return base_df,work_sheet
 
 
