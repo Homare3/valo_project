@@ -7,8 +7,9 @@ from PIL import Image
 import module
 
 
-
+# プレイヤー名
 names = ["isanacat", "Yugen", "LuckyNana", "pecoson", "amondo22", "Lily"]
+
 
 # データフォルダが存在しない場合は作成
 if not os.path.exists("img_data"):
