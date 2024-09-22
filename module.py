@@ -17,8 +17,9 @@ from google.cloud import storage
 class OCR:
     def __init__(self,path):
         # self.credentials = service_account.Credentials.from_service_account_file('./data/key.json')
-        st.write(st.secrets["gcp_service_account"])
-        self.credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=[ "https://www.googleapis.com/auth/spreadsheets",])
+        self.credentials = service_account.Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]), 
+                                                                                 scopes = ["https://www.googleapis.com/auth/cloud-platform"],
+                                                                                 )
         self.img_path = path
         self.client = vision.ImageAnnotatorClient(credentials=self.credentials)
     
@@ -140,6 +141,10 @@ def connected_spread_sheet(path):
    work_sheet = spread_sheet.worksheet("俺らの格差")
    values = work_sheet.get_all_values(value_render_option='FORMULA')
    base_df = pd.DataFrame(values)
+   st.write(base_df)
+   st.write(base_df[10])
+   st.write(base_df[10][2])
+   print(type(base_df[10][2]))
    return base_df,work_sheet
 
 
@@ -166,4 +171,4 @@ def update(insert_index,insert_patch,insert_oppo,insert_map,base_df,df,worksheet
           for items in df[df.name == name].drop(["name"],axis=1).values:
             for index,item in enumerate(items):
               base_df.iloc[insert_index,value[index]] = item
-    worksheet.update('A1', base_df.values.tolist())
+    worksheet.update('A1', base_df.values.tolist(),value_input_option='USER_ENTERED')
