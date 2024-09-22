@@ -2,5 +2,5 @@
 /venv/
 /__pycache__/
 /.streamlit/
-/img_data/
 /.devcontainer/
+/img_data/
