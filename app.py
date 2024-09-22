@@ -7,12 +7,6 @@ from PIL import Image
 import module
 
 
-characters = [
-    "None","Astra", "Breach", "ぶりむstone", "Chamber", "Cypher", "Fade", "Gekko", 
-    "Harbor", "Jett", "KAY/O", "Killjoy", "Neon", "Omen", "Phoenix", "Raze", 
-    "Reyna", "Skye", "Sage", "Sova", "Viper", "Yoru", "ISO", "Deadlock", 
-    "Clove", "Vyse"
-]
 
 names = ["isanacat", "Yugen", "LuckyNana", "pecoson", "amondo22", "Lily"]
 
@@ -36,6 +30,8 @@ if uploaded_file is not None:
         f.write(uploaded_file.getbuffer())
     st.success(f"画像が正常に保存されました: {save_path}")
     ocr = module.OCR(save_path)
+    sheet_path = st.secrets["sheet_path"]
+    characters,enemy_teams,map_option,spread_sheet = module.get_variable(sheet_path)
 
     st.title("キャラクター選択")
     # 各ユーザーごとにキャラクターを選択するUIを表示
@@ -61,17 +57,14 @@ if uploaded_file is not None:
         #    data = json.load(file)
         
         # sheet_path = data.get("sheet_path")
-        sheet_path = st.secrets["sheet_path"]
-        base_df,worksheet = module.connected_spread_sheet(sheet_path)
+        base_df,worksheet = module.connected_spread_sheet(spread_sheet)
 
         st.title("基礎情報の入力")
         insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=10)
         # 行の見え方が違うため1引く
         insert_index -= 1
         insert_patch = st.text_input("patchを入力してください")
-        enemy_teams = st.secrets["enemy_team"]["enemy_team"]
         insert_oppo = st.selectbox("敵チームを選択してください", enemy_teams)
-        map_option = ["Haven", "Split", "Lotus", "Bind", "Ascent", "Sunset", "Breeze", "Icebox", "Abyss"]
         insert_map = st.selectbox("mapを選択してください",map_option)
         if st.button("決定"):
             df["character"] = selected_characters
