@@ -64,33 +64,39 @@ if uploaded_file is not None:
         
         with col1:
             # insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=10)
-            insert_index = st.text_input("挿入する行を入力してください").astype(int)
-            # 行の見え方が違うため1引く
-            insert_index -= 1
+            insert_index_text = st.text_input("挿入する行を入力してください")
+            if not insert_index_text.isdigit():
+                st.error("自然数を入力してください")
+            elif int(insert_index_text) < 1:
+                st.error("1以上で入力してください")
+            else:
+                insert_index = int(insert_index_text)
+                # 行の見え方が違うため1引く
+                insert_index -= 1
         
-        with col2:
-            insert_patch = st.text_input("patchを入力してください")
+            with col2:
+                insert_patch = st.text_input("patchを入力してください")
         
-        with col3:
-            insert_oppo = st.selectbox("敵チームを選択してください", enemy_teams)
+            with col3:
+                insert_oppo = st.selectbox("敵チームを選択してください", enemy_teams)
         
-        insert_map = st.selectbox("mapを選択してください",map_option)
+            insert_map = st.selectbox("mapを選択してください",map_option)
         
-        if st.button("決定"):
-            df["character"] = selected_characters
-            df["avc"] = df["avc"].astype(int)
-            df["kill"] = df["kill"].astype(int)
-            df["death"] = df["death"].astype(int)
-            df["assist"] = df["assist"].astype(int)
-            module.update(insert_index,insert_patch,insert_oppo,insert_map,base_df,df,worksheet)
-            st.success("正常に更新された気がする")
+            if st.button("決定"):
+                df["character"] = selected_characters
+                df["avc"] = df["avc"].astype(int)
+                df["kill"] = df["kill"].astype(int)
+                df["death"] = df["death"].astype(int)
+                df["assist"] = df["assist"].astype(int)
+                module.update(insert_index,insert_patch,insert_oppo,insert_map,base_df,df,worksheet)
+                st.success("正常に更新された気がする")
         
-        if st.button("初めに戻る"):
-            st.markdown(
-        """
-        <script>
-            window.parent.location.reload();
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
+            if st.button("初めに戻る"):
+                st.markdown(
+            """
+            <script>
+                window.parent.location.reload();
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
