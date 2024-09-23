@@ -63,7 +63,8 @@ if uploaded_file is not None:
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=10)
+            # insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=10)
+            insert_index = int(st.text_input("挿入する行を入力してください"))
             # 行の見え方が違うため1引く
             insert_index -= 1
         
