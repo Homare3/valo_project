@@ -35,12 +35,15 @@ if uploaded_file is not None:
     characters,enemy_teams,map_option,spread_sheet = module.get_variable(sheet_path)
 
     st.title("キャラクター選択")
-    # 各ユーザーごとにキャラクターを選択するUIを表示
+    # 2列でキャラクター選択UIを表示
+    col1, col2 = st.columns(2)
     selected_characters = []
-    for name in names:
-        selected = st.selectbox(f"{name} のキャラクターを選んでください", characters, key=name)
-        if selected != "None":
-            selected_characters.append(selected)
+    for i, name in enumerate(names):
+        with col1 if i % 2 == 0 else col2:
+            selected = st.selectbox(f"{name} のキャラクターを選んでください", characters, key=name)
+            if selected != "None":
+                selected_characters.append(selected)
+
     if len(selected_characters) > 5:
         st.error("6キャラクター選ばれています。")
     elif (len(set(selected_characters)) < 5 and selected_characters.count("None") < 2) and len(selected_characters) > 4:
@@ -53,20 +56,25 @@ if uploaded_file is not None:
         swap_list = module.swap_elements(result_list,names)
         base_data = module.split_list(swap_list)
         df = module.df_create(base_data)
-
-        # with open("./data/key_path.json","r",encoding="utf-8") as file:
-        #    data = json.load(file)
         
-        # sheet_path = data.get("sheet_path")
         base_df,worksheet = module.connected_spread_sheet(spread_sheet)
 
         st.title("基礎情報の入力")
-        insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=10)
-        # 行の見え方が違うため1引く
-        insert_index -= 1
-        insert_patch = st.text_input("patchを入力してください")
-        insert_oppo = st.selectbox("敵チームを選択してください", enemy_teams)
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=10)
+            # 行の見え方が違うため1引く
+            insert_index -= 1
+        
+        with col2:
+            insert_patch = st.text_input("patchを入力してください")
+        
+        with col3:
+            insert_oppo = st.selectbox("敵チームを選択してください", enemy_teams)
+        
         insert_map = st.selectbox("mapを選択してください",map_option)
+        
         if st.button("決定"):
             df["character"] = selected_characters
             df["avc"] = df["avc"].astype(int)
@@ -85,6 +93,3 @@ if uploaded_file is not None:
         """,
         unsafe_allow_html=True
     )
-            
-
-    
