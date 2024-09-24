@@ -32,6 +32,7 @@ class OCR:
                                           image_context={"language_hints": ["ja", "en"]})
         if response.text_annotations:
             text_annotations = response.full_text_annotation
+            st.write(text_annotations)
             sorted_annotations = self.sort_annotations(text_annotations[1:])
             result_list = [annotation.description for annotation in sorted_annotations]
         else:
