@@ -126,6 +126,7 @@ def df_create(result_list):
 
 
 # 選択肢を取得
+@st.cache_data
 def get_variable(path):
   scopes = [
     'https://www.googleapis.com/auth/spreadsheets',
