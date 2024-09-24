@@ -52,6 +52,7 @@ if uploaded_file is not None:
         st.error("Noneが多すぎます")
     else:
         result_list = ocr.main()
+        st.write(result_list)
         fix_list = module.name_fix(result_list,names)
         swap_list = module.swap_elements(result_list,names)
         base_data = module.split_list(swap_list)
