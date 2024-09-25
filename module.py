@@ -37,9 +37,6 @@ class OCR:
             full_text_annotation = response.full_text_annotation
             text_xpos_list = self.get_text_and_xpos(full_text_annotation)
             result_list = self.get_word(text_xpos_list)
-            # st.write(text_annotations)
-            # sorted_annotations = self.sort_annotations(text_annotations[1:])
-            # result_list = [annotation.description for annotation in sorted_annotations]
         else:
             print("No text detected")
         if response.error.message:
@@ -97,20 +94,6 @@ class OCR:
         
         # グループを平坦化
         return [annotation for group in sorted_groups for annotation in group]
-        
-
-def name_fix(result_list,names):
-  for i in range(len(result_list)):
-    if not result_list[i].isdigit() and result_list[i] != "/":
-      # namesに一部一致しているか確認
-      for name in names:
-        if result_list[i] in name:
-          result_list[i] = name
-  for j in names:
-    index = [i for i, x in enumerate(result_list) if x == j]
-    if len(index) > 1:
-      result_list.pop(index[1])
-  return result_list
 
 
 # 順番を入れ替える関数
@@ -124,22 +107,6 @@ def swap_elements(result_list,names):
             break
           else:
             new_list.append(group)
-
-  return new_list
-
-
-# /と空白があれば別々の要素とする
-def split_list(result_list):
-  new_list = []
-  for item in result_list:
-    if "/" in item:
-      new_list.extend(item.split("/"))
-    elif " " in item:
-      new_list.extend(item.split(" "))
-    else:
-      new_list.append(item)
-  # ""だけ除去
-  new_list = [item for item in new_list if item != ""]
   return new_list
 
 
@@ -177,7 +144,6 @@ def get_variable(spread_sheet):
   enemy_team = list(var_df[var_df["略称"]!=""]["略称"])
   insert_map = list(var_df[var_df["マップ"]!=""]["マップ"])
   return characters,enemy_team,insert_map
-
 
 
 def get_base_df(spread_sheet):

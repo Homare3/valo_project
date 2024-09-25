@@ -9,8 +9,6 @@ import module
 
 # プレイヤー名
 names = ["isanacat", "Yugen", "LuckyNana", "pecoson", "amondo22", "Lily"]
-
-
 # データフォルダが存在しない場合は作成
 if not os.path.exists("img_data"):
     os.makedirs("img_data")
@@ -44,7 +42,6 @@ if uploaded_file is not None:
             selected = st.selectbox(f"{name} のキャラクターを選んでください", characters, key=name)
             if selected != "None":
                 selected_characters.append(selected)
-
     if len(selected_characters) > 5:
         st.error("6キャラクター選ばれています。")
     elif (len(set(selected_characters)) < 5 and selected_characters.count("None") < 2) and len(selected_characters) > 4:
@@ -53,11 +50,8 @@ if uploaded_file is not None:
         st.error("Noneが多すぎます")
     else:
         result_list = ocr.main()
-        # fix_list = module.name_fix(result_list,names)
         swap_list = module.swap_elements(result_list,names)
-        # base_data = module.split_list(swap_list)
         df = module.df_create(swap_list)
-        st.write(df)
         base_df,worksheet = module.get_base_df(spread_sheet)
         st.title("基礎情報の入力")
         col1, col2, col3 = st.columns(3)
