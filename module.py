@@ -58,12 +58,16 @@ class OCR:
         word_list = []
         save_xpos = 0
         for text,xpos in text_xpos_list:
-            if -20 <= (xpos - save_xpos) <= 20:
+            x_diff = xpos - save_xpos
+
+            if -20 <= x_diff <= 20:
                 word_list[-1] += text
+                save_xpos = xpos
+            elif 20 < x_diff <= 35:
+               pass
             else:
                 word_list.append(text)
-            save_xpos = xpos
-        
+                save_xpos = xpos
         return word_list
        
 
