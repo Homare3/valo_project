@@ -68,7 +68,6 @@ class OCR:
             else:
                 word_list.append(text)
                 save_xpos = xpos
-        st.write(word_list)
         return word_list
        
 
