@@ -7,12 +7,15 @@ from datetime import datetime
 from google.cloud import vision
 from google.oauth2 import service_account
 from google.oauth2.service_account import Credentials
+from google.auth.exceptions import GoogleAuthError
 import gspread
+
 import streamlit as st
 
 from oauth2client.service_account import ServiceAccountCredentials
 import pytz
 from google.cloud import storage
+
 
 class OCR:
     def __init__(self,path):
@@ -31,10 +34,12 @@ class OCR:
         response = self.client.document_text_detection(image=image,
                                           image_context={"language_hints": ["ja", "en"]})
         if response.text_annotations:
-            text_annotations = response.full_text_annotation
-            st.write(text_annotations)
-            sorted_annotations = self.sort_annotations(text_annotations[1:])
-            result_list = [annotation.description for annotation in sorted_annotations]
+            full_text_annotation = response.full_text_annotation
+            text_xpos_list = self.get_text_and_xpos(full_text_annotation)
+            result_list = self.get_word(text_xpos_list)
+            # st.write(text_annotations)
+            # sorted_annotations = self.sort_annotations(text_annotations[1:])
+            # result_list = [annotation.description for annotation in sorted_annotations]
         else:
             print("No text detected")
         if response.error.message:
@@ -43,7 +48,27 @@ class OCR:
         'https://cloud.google.com/apis/design/errors'.format(
             response.error.message))
         return result_list
-
+    
+    def get_text_and_xpos(self,full_text_annotation):
+        text_xpos_list = []
+        for blocks in full_text_annotation.pages[0].blocks:
+            for paragraph in blocks.paragraphs:
+                for word in paragraph.words:
+                    [text_xpos_list.append([symbol.text, symbol.bounding_box.vertices[0].x]) for symbol in word.symbols if symbol.text != "/"]
+        return text_xpos_list
+    
+    def get_word(self,text_xpos_list):
+        word_list = []
+        save_xpos = 0
+        for text,xpos in text_xpos_list:
+            if -20 <= (xpos - save_xpos) <= 20:
+                word_list[-1] += text
+            else:
+                word_list.append(text)
+            save_xpos = xpos
+        
+        return word_list
+       
 
     def get_center(self,annotation):
         vertices = annotation.bounding_poly.vertices
@@ -74,8 +99,6 @@ class OCR:
         return [annotation for group in sorted_groups for annotation in group]
         
 
-
-
 def name_fix(result_list,names):
   for i in range(len(result_list)):
     if not result_list[i].isdigit() and result_list[i] != "/":
@@ -88,6 +111,7 @@ def name_fix(result_list,names):
     if len(index) > 1:
       result_list.pop(index[1])
   return result_list
+
 
 # 順番を入れ替える関数
 def swap_elements(result_list,names):
@@ -102,7 +126,8 @@ def swap_elements(result_list,names):
             new_list.append(group)
 
   return new_list
-    
+
+
 # /と空白があれば別々の要素とする
 def split_list(result_list):
   new_list = []
@@ -116,6 +141,7 @@ def split_list(result_list):
   # ""だけ除去
   new_list = [item for item in new_list if item != ""]
   return new_list
+
 
 # dataframeにする
 def df_create(result_list):
@@ -148,17 +174,27 @@ def get_variable(path):
   insert_map = list(var_df[var_df["マップ"]!=""]["マップ"])
   return characters,enemy_team,insert_map,spread_sheet
 
-# shread sheetと接続
 
+# shread sheetと接続
 def connected_spread_sheet(spread_sheet):
-   work_sheet = spread_sheet.worksheet("俺らの格差")
-   values = work_sheet.get_all_values(value_render_option='FORMULA')
-   base_df = pd.DataFrame(values)
-   return base_df,work_sheet
+    try:
+        work_sheet = spread_sheet.worksheet("俺らの格差")
+        values = work_sheet.get_all_values(value_render_option='FORMULA')
+        base_df = pd.DataFrame(values)
+        return base_df, work_sheet
+    except gspread.exceptions.APIError as e:
+        print(f"API Error: {e}")
+        print(f"Response content: {e.response.content}")
+        raise
+    except GoogleAuthError as e:
+        print(f"Authentication Error: {e}")
+        raise
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise
 
 
 # spread_sheetの更新
-
 def update(insert_index,insert_patch,insert_oppo,insert_map,base_df,df,worksheet):
     index_dict = {"isanacat":[8,5,6,7,9],
                   "Yugen":[14,11,12,13,15],
