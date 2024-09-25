@@ -152,31 +152,35 @@ def df_create(result_list):
   return df
 
 
-# 選択肢を取得
-@st.cache_data
-def get_variable(path):
-  scopes = [
+# shread sheetと接続
+@st.cache_resource
+def get_spreadsheet_connection(path):
+    scopes = [
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
     ]
-  #  credentials = Credentials.from_service_account_file(
-  #   './data/key.json',
-  #   scopes=scopes
-  #   )
-  credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scopes)
-  gc = gspread.authorize(credentials)
-  spread_sheet = gc.open_by_url(path)
+    #  credentials = Credentials.from_service_account_file(
+    #   './data/key.json',
+    #   scopes=scopes
+    #   )
+    credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scopes)
+    gc = gspread.authorize(credentials)
+    return gc.open_by_url(path)
+   
+
+# 選択肢を取得
+def get_variable(spread_sheet):
   work_sheet = spread_sheet.worksheet("R63")
   values = work_sheet.get_all_values(value_render_option='FORMULA')
   var_df = pd.DataFrame(data=values[1:],columns=values[0])
   characters = ["None"] + list(var_df[var_df["エージェント"]!=""]["エージェント"])
   enemy_team = list(var_df[var_df["略称"]!=""]["略称"])
   insert_map = list(var_df[var_df["マップ"]!=""]["マップ"])
-  return characters,enemy_team,insert_map,spread_sheet
+  return characters,enemy_team,insert_map
 
 
-# shread sheetと接続
-def connected_spread_sheet(spread_sheet):
+
+def get_base_df(spread_sheet):
     try:
         work_sheet = spread_sheet.worksheet("俺らの格差")
         values = work_sheet.get_all_values(value_render_option='FORMULA')

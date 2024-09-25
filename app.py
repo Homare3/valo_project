@@ -32,7 +32,8 @@ if uploaded_file is not None:
     st.success(f"画像が正常に保存されました: {save_path}")
     ocr = module.OCR(save_path)
     sheet_path = st.secrets["sheet_path"]
-    characters,enemy_teams,map_option,spread_sheet = module.get_variable(sheet_path)
+    spread_sheet = module.get_spreadsheet_connection(sheet_path)
+    characters,enemy_teams,map_option = module.get_variable(sheet_path)
 
     st.title("キャラクター選択")
     # 2列でキャラクター選択UIを表示
@@ -57,7 +58,7 @@ if uploaded_file is not None:
         # base_data = module.split_list(swap_list)
         df = module.df_create(swap_list)
         st.write(df)
-        base_df,worksheet = module.connected_spread_sheet(spread_sheet)
+        base_df,worksheet = module.get_base_df(spread_sheet)
         st.title("基礎情報の入力")
         col1, col2, col3 = st.columns(3)
         
