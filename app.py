@@ -33,7 +33,7 @@ if uploaded_file is not None:
     ocr = module.OCR(save_path)
     sheet_path = st.secrets["sheet_path"]
     spread_sheet = module.get_spreadsheet_connection(sheet_path)
-    characters,enemy_teams,map_option = module.get_variable(sheet_path)
+    characters,enemy_teams,map_option = module.get_variable(spread_sheet)
 
     st.title("キャラクター選択")
     # 2列でキャラクター選択UIを表示
