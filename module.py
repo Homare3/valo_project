@@ -77,7 +77,7 @@ class OCR:
     def get_word(self,y_ratio_group):
         word_list = []
         all_values = [item for sublist in y_ratio_group.values() for item in sublist]
-        pixel_length = abs([item[1] for item in all_values if item[0] == "L"][0] - max(all_values , key = lambda x: x[1])[1])        
+        pixel_length = abs([item[1] for item in all_values if item[0] == "L" or item[0] == "p"][0] - max(all_values , key = lambda x: x[1])[1])        
         save_xpos = 0
         
         for row_group in y_ratio_group.values():
