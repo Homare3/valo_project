@@ -19,7 +19,6 @@ from google.cloud import storage
 
 class OCR:
     def __init__(self,path):
-        # self.credentials = service_account.Credentials.from_service_account_file('./data/key.json')
         self.credentials = service_account.Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]), 
                                                                                  scopes = ["https://www.googleapis.com/auth/cloud-platform"],
                                                                                  )
@@ -36,7 +35,8 @@ class OCR:
         if response.text_annotations:
             full_text_annotation = response.full_text_annotation
             text_xpos_list = self.get_text_and_xpos(full_text_annotation)
-            result_list = self.get_word(text_xpos_list)
+            y_ratio_group = self.row_group(text_xpos_list)
+            result_list = self.get_word(y_ratio_group)
         else:
             print("No text detected")
         if response.error.message:
@@ -45,29 +45,52 @@ class OCR:
         'https://cloud.google.com/apis/design/errors'.format(
             response.error.message))
         return result_list
-    
+
     def get_text_and_xpos(self,full_text_annotation):
         text_xpos_list = []
         for blocks in full_text_annotation.pages[0].blocks:
             for paragraph in blocks.paragraphs:
                 for word in paragraph.words:
-                    [text_xpos_list.append([symbol.text, symbol.bounding_box.vertices[0].x]) for symbol in word.symbols if symbol.text != "/"]
+                    [text_xpos_list.append([symbol.text, symbol.bounding_box.vertices[0].x, symbol.bounding_box.vertices[0].y]) for symbol in word.symbols if symbol.text != "/"]
         return text_xpos_list
     
-    def get_word(self,text_xpos_list):
+    def has_exsist_row(self,y_ratio_groups,ypos):
+       save_key = 999
+       y_ratio_keys = list(y_ratio_groups.keys())
+       for key in y_ratio_keys:
+          if abs(key - ypos) < 6:
+             save_key = key
+       return save_key
+        
+    def row_group(self,text_xpos_list):
+        y_ratio_groups = {}
+        
+        for text,xpos,ypos in text_xpos_list:
+        
+           save_key = self.has_exsist_row(y_ratio_groups,ypos)
+           if save_key != 999:
+              y_ratio_groups[save_key] += [[text,xpos]]
+           else:
+              y_ratio_groups[ypos] = [[text,xpos]]
+        return y_ratio_groups
+    
+    def get_word(self,y_ratio_group):
         word_list = []
+        all_values = [item for sublist in y_ratio_group.values() for item in sublist]
+        pixel_length = abs([item[1] for item in all_values if item[0] == "L"][0] - max(all_values , key = lambda x: x[1])[1])        
         save_xpos = 0
-        for text,xpos in text_xpos_list:
-            x_diff = xpos - save_xpos
-
-            if -20 <= x_diff <= 20:
-                word_list[-1] += text
-                save_xpos = xpos
-            elif 20 < x_diff <= 35:
-               pass
-            else:
-                word_list.append(text)
-                save_xpos = xpos
+        
+        for row_group in y_ratio_group.values():
+           word_list
+           for idx,(text,xpos) in enumerate(row_group,start=1):
+              x_ratio = abs(xpos - save_xpos) / pixel_length
+              if 0.03 < x_ratio <=  0.045:
+                 continue
+              elif 0.045 < x_ratio or idx == 1:
+                 word_list += [text]
+              else:
+                 word_list[-1] += text
+              save_xpos = xpos
         return word_list
        
 
@@ -95,7 +118,6 @@ class OCR:
             groups.append(current_group)
         # 各グループ内でX座標でソート
         sorted_groups = [sorted(group, key=lambda a: self.get_center(a)[0]) for group in groups]
-        
         # グループを平坦化
         return [annotation for group in sorted_groups for annotation in group]
 
@@ -116,7 +138,7 @@ def swap_elements(result_list,names):
 
 # dataframeにする
 def df_create(result_list):
-  df = pd.DataFrame(columns=["name","avc","kill","death","assist"])
+  df = pd.DataFrame(columns=["name","acs","kill","death","assist"])
   # 5つずつ
   for i in range(0,len(result_list),5):
     df.loc[len(df)] = result_list[i:i+5]
@@ -130,10 +152,6 @@ def get_spreadsheet_connection(path):
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
     ]
-    #  credentials = Credentials.from_service_account_file(
-    #   './data/key.json',
-    #   scopes=scopes
-    #   )
     credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scopes)
     gc = gspread.authorize(credentials)
     return gc.open_by_url(path)
