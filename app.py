@@ -78,7 +78,7 @@ if uploaded_file is not None:
         
             if st.button("決定"):
                 df["character"] = selected_characters
-                df["avc"] = df["avc"].astype(int)
+                df["acs"] = df["acs"].astype(int)
                 df["kill"] = df["kill"].astype(int)
                 df["death"] = df["death"].astype(int)
                 df["assist"] = df["assist"].astype(int)
