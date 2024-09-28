@@ -64,35 +64,34 @@ class OCR:
         
     def row_group(self,text_xpos_list):
         y_ratio_groups = {}
-        
         for text,xpos,ypos in text_xpos_list:
-        
            save_key = self.has_exsist_row(y_ratio_groups,ypos)
            if save_key != 999:
               y_ratio_groups[save_key] += [[text,xpos]]
            else:
               y_ratio_groups[ypos] = [[text,xpos]]
+        for key in y_ratio_groups:
+           y_ratio_groups[key].sort(key=lambda x: x[1])
         return y_ratio_groups
     
     def get_word(self,y_ratio_group):
         word_list = []
         all_values = [item for sublist in y_ratio_group.values() for item in sublist]
         pixel_length = abs([item[1] for item in all_values if item[0] == "L" or item[0] == "p"][0] - max(all_values , key = lambda x: x[1])[1])        
-        save_xpos = 0
-        
+        save_xpos = 0   
         for row_group in y_ratio_group.values():
-           word_list
+           row_list = []
            for idx,(text,xpos) in enumerate(row_group,start=1):
               x_ratio = abs(xpos - save_xpos) / pixel_length
               if 0.03 < x_ratio <=  0.045:
                  continue
               elif 0.045 < x_ratio or idx == 1:
-                 word_list += [text]
+                 row_list += [text]
               else:
-                 word_list[-1] += text
+                 row_list[-1] += text
               save_xpos = xpos
+           word_list.append(row_list)
         return word_list
-       
 
     def get_center(self,annotation):
         vertices = annotation.bounding_poly.vertices
@@ -124,24 +123,31 @@ class OCR:
 
 # 順番を入れ替える関数
 def swap_elements(result_list,names):
-  new_list = []
-  for name in names:
-    for index, item in enumerate(result_list):
-     if item == name and item not in new_list:
-        for i,group in enumerate(result_list[index:]):
-          if group in names and i != 0:
-            break
-          else:
-            new_list.append(group)
+  def custom_sort(word):
+     if word[0] in names:
+        return names.index(word[0])
+     return float("inf")
+  new_list = [item for item in sorted(result_list, key=custom_sort) if item[0] in names]
   return new_list
-
 
 # dataframeにする
 def df_create(result_list):
+
+  base_data = result_list.copy()
+  df_data = []
+  for word in result_list:
+
+     if len(word) == 5:
+        df_data += word
+        continue
+     elif len(word) < 5:
+        df_data += [word + [None] * (5 - len(word))][0]
+     else:
+        df_data += word[:5]
   df = pd.DataFrame(columns=["name","acs","kill","death","assist"])
   # 5つずつ
-  for i in range(0,len(result_list),5):
-    df.loc[len(df)] = result_list[i:i+5]
+  for i in range(0,len(df_data),5):
+    df.loc[len(df)] = df_data[i:i+5]
   return df
 
 

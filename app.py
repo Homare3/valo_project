@@ -6,14 +6,15 @@ from PIL import Image
 
 import module
 
-
+st.title("戦績入力アプリ")
+st.write("---")
 # プレイヤー名
 names = ["isanacat", "Yugen", "LuckyNana", "pecoson", "amondo22", "Lily"]
 # データフォルダが存在しない場合は作成
 if not os.path.exists("img_data"):
     os.makedirs("img_data")
 
-st.title("画像アップローダー")
+st.header("画像アップローダー")
 
 # ファイルアップローダーを作成
 uploaded_file = st.file_uploader("画像をドラッグ&ドロップしてください", type=["jpg", "jpeg", "png"])
@@ -33,7 +34,7 @@ if uploaded_file is not None:
     spread_sheet = module.get_spreadsheet_connection(sheet_path)
     characters,enemy_teams,map_option = module.get_variable(spread_sheet)
 
-    st.title("キャラクター選択")
+    st.header("キャラクター選択")
     # 2列でキャラクター選択UIを表示
     col1, col2 = st.columns(2)
     selected_characters = []
@@ -52,12 +53,19 @@ if uploaded_file is not None:
         result_list = ocr.main()
         swap_list = module.swap_elements(result_list,names)
         df = module.df_create(swap_list)
+        st.header("データに間違いがあれば修正してください")
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            edited_df = st.data_editor(df,
+                                   num_rows="fixed",
+                                   hide_index=True,)
+        with col2:
+            st.image(image, caption='アップロードされた画像', use_column_width=True)
         base_df,worksheet = module.get_base_df(spread_sheet)
-        st.title("基礎情報の入力")
+        st.header("基礎情報の入力")
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            # insert_index = st.number_input("挿入する行を入力してください",min_value=0,step=10)
             insert_index_text = st.text_input("挿入する行を入力してください")
             if not insert_index_text.isdigit():
                 st.error("自然数を入力してください")
@@ -77,12 +85,12 @@ if uploaded_file is not None:
             insert_map = st.selectbox("mapを選択してください",map_option)
         
             if st.button("決定"):
-                df["character"] = selected_characters
-                df["acs"] = df["acs"].astype(int)
-                df["kill"] = df["kill"].astype(int)
-                df["death"] = df["death"].astype(int)
-                df["assist"] = df["assist"].astype(int)
-                module.update(insert_index,insert_patch,insert_oppo,insert_map,base_df,df,worksheet)
+                edited_df["character"] = selected_characters
+                edited_df["acs"] = edited_df["acs"].astype(int)
+                edited_df["kill"] = edited_df["kill"].astype(int)
+                edited_df["death"] = edited_df["death"].astype(int)
+                edited_df["assist"] = edited_df["assist"].astype(int)
+                module.update(insert_index,insert_patch,insert_oppo,insert_map,base_df,edited_df,worksheet)
                 st.success("正常に更新された気がする")
         
             if st.button("初めに戻る"):
