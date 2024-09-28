@@ -92,7 +92,7 @@ if uploaded_file is not None:
                 edited_df["assist"] = edited_df["assist"].astype(int)
                 module.update(insert_index,insert_patch,insert_oppo,insert_map,base_df,edited_df,worksheet)
                 st.success("正常に更新された気がする")
-                st.balloons
+                st.balloons()
         
             if st.button("初めに戻る"):
                 st.markdown(
