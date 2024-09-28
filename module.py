@@ -16,7 +16,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pytz
 from google.cloud import storage
 
-
+@st.cache_resource
 class OCR:
     def __init__(self,path):
         self.credentials = service_account.Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]), 
