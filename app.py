@@ -58,7 +58,7 @@ if uploaded_file is not None:
         swap_list = module.swap_elements(result_list,names)
         df = module.df_create(swap_list)
         st.header("データに間違いがあれば修正してください")
-        col1, col2 = st.columns([1, 1])
+        col1, col2 = st.columns([1, 1.5])
         with col1:
             edited_df = st.data_editor(df,
                                    num_rows="fixed",
