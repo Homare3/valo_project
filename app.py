@@ -29,10 +29,15 @@ if uploaded_file is not None:
     with open(save_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
     st.success(f"画像が正常に保存されました: {save_path}")
-    ocr = module.OCR(save_path)
+    if uploaded_file is not None:
+        ocr = module.OCR(save_path)
     sheet_path = st.secrets["sheet_path"]
     spread_sheet = module.get_spreadsheet_connection(sheet_path)
-    characters,enemy_teams,map_option = module.get_variable(spread_sheet)
+    if 'characters' not in st.session_state:
+        st.session_state['characters'], st.session_state['enemy_teams'], st.session_state['map_option'] = module.get_variable(spread_sheet)
+    characters = st.session_state['characters']
+    enemy_teams = st.session_state['enemy_teams']
+    map_option = st.session_state['map_option']
 
     st.header("キャラクター選択")
     # 2列でキャラクター選択UIを表示
