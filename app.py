@@ -29,8 +29,7 @@ if uploaded_file is not None:
     with open(save_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
     st.success(f"画像が正常に保存されました: {save_path}")
-    if uploaded_file is not None:
-        ocr = module.OCR(save_path)
+    ocr = module.OCR(save_path)
     sheet_path = st.secrets["sheet_path"]
     spread_sheet = module.get_spreadsheet_connection(sheet_path)
     if 'characters' not in st.session_state:
