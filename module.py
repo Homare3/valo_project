@@ -132,7 +132,6 @@ def swap_elements(result_list,names):
 
 # dataframeにする
 def df_create(result_list):
-
   base_data = result_list.copy()
   df_data = []
   for word in result_list:
@@ -173,6 +172,13 @@ def get_variable(spread_sheet):
   insert_map = list(var_df[var_df["マップ"]!=""]["マップ"])
   return characters,enemy_team,insert_map
 
+def get_players_name(spread_sheet):
+   work_sheet = spread_sheet.worksheet("R63")
+   values = work_sheet.get_all_values(value_render_option='FORMULA')
+   var_df = pd.DataFrame(data=values[1:],columns=values[0])
+   players_name = list(var_df[var_df["プレイヤー名"]!=""]["プレイヤー名"])
+   
+   return players_name
 
 def get_base_df(spread_sheet):
     try:
@@ -193,15 +199,9 @@ def get_base_df(spread_sheet):
 
 
 # spread_sheetの更新
-def update(insert_index,insert_patch,insert_oppo,insert_map,base_df,df,worksheet):
-    index_dict = {"isanacat":[8,5,6,7,9],
-                  "Yugen":[14,11,12,13,15],
-                  "LuckyNana":[20,17,18,19,21],
-                  "pecoson":[26,23,24,25,27],
-                  "amondo22":[32,29,30,31,33],
-                  "Lily":[38,35,36,37,39]
-                  }
-    
+def update(insert_index,insert_patch,insert_oppo,insert_map,base_df,df,worksheet,names):
+    index = [[8,5,6,7,9],[14,11,12,13,15],[20,17,18,19,21],[26,23,24,25,27],[32,29,30,31,33],[38,35,36,37,39]]
+    index_dict = dict(zip(names,index))
     insert_date = datetime.now().strftime("%Y/%m/%d")
     insert_list = [insert_date,insert_patch,insert_oppo,insert_map]
  

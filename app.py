@@ -8,8 +8,7 @@ import module
 
 st.title("戦績入力アプリ")
 st.write("---")
-# プレイヤー名
-names = ["isanacat", "Yugen", "LuckyNana", "pecoson", "amondo22", "Lily"]
+
 # データフォルダが存在しない場合は作成
 if not os.path.exists("img_data"):
     os.makedirs("img_data")
@@ -32,11 +31,17 @@ if uploaded_file is not None:
     ocr = module.OCR(save_path)
     sheet_path = st.secrets["sheet_path"]
     spread_sheet = module.get_spreadsheet_connection(sheet_path)
+
     if 'characters' not in st.session_state:
         st.session_state['characters'], st.session_state['enemy_teams'], st.session_state['map_option'] = module.get_variable(spread_sheet)
     characters = st.session_state['characters']
     enemy_teams = st.session_state['enemy_teams']
     map_option = st.session_state['map_option']
+
+    if 'names' not in st.session_state:
+        base_name = module.get_players_name(spread_sheet)
+        st.session_state['names'] = [name.replace(" ","") for name in base_name]
+    names = st.session_state['names']
 
     st.header("キャラクター選択")
     # 2列でキャラクター選択UIを表示
@@ -94,7 +99,7 @@ if uploaded_file is not None:
                 edited_df["kill"] = edited_df["kill"].astype(int)
                 edited_df["death"] = edited_df["death"].astype(int)
                 edited_df["assist"] = edited_df["assist"].astype(int)
-                module.update(insert_index,insert_patch,insert_oppo,insert_map,base_df,edited_df,worksheet)
+                module.update(insert_index,insert_patch,insert_oppo,insert_map,base_df,edited_df,worksheet,names)
                 st.success("正常に更新された気がする")
                 st.balloons()
         
