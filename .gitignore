@@ -4,3 +4,4 @@
 /.streamlit/
 /.devcontainer/
 /img_data/
+./secrets.toml

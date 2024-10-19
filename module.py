@@ -128,6 +128,7 @@ def swap_elements(result_list,names):
         return names.index(word[0])
      return float("inf")
   new_list = [item for item in sorted(result_list, key=custom_sort) if item[0] in names]
+  st.write(new_list)
   return new_list
 
 # dataframeにする
