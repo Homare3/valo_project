@@ -128,14 +128,15 @@ def swap_elements(result_list,names):
         return names.index(word[0])
      return float("inf")
   new_list = [item for item in sorted(result_list, key=custom_sort) if item[0] in names]
-  st.write(new_list)
   return new_list
 
 # dataframeにする
 def df_create(result_list):
   base_data = result_list.copy()
   df_data = []
-  for word in result_list:
+  while len(base_data) < 5:
+     base_data += [["None"]*5]
+  for word in base_data:
 
      if len(word) == 5:
         df_data += word
